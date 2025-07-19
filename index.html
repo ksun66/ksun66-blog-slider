@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSUN66 Blog Slider</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; }
+.slider { position: relative; overflow: hidden; max-width: 800px; margin: auto; }
+.slides { display: flex; transition: transform 0.5s ease; }
+.slide { min-width: 100%; box-sizing: border-box; text-align: center; padding: 20px; }
+.slide img { max-width: 100%; height: auto; border-radius: 8px; }
+.nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; }
+.nav button { background: rgba(0,0,0,0.5); color:#fff; border:none; padding:10px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="slider">
+  <div class="slides" id="slides"></div>
+  <div class="nav">
+    <button id="prev">❮</button>
+    <button id="next">❯</button>
+  </div>
+</div>
+
+<script>
+const slidesContainer = document.getElementById("slides");
+fetch("https://www.ksun66.com/wp-json/wp/v2/posts?per_page=5&_embed")
+  .then(res => res.json())
+  .then(posts => {
+    posts.forEach(post => {
+      const slide = document.createElement("div");
+      slide.className = "slide";
+      slide.innerHTML = `
+        <a href="${post.link}" target="_blank">
+          <img src="${post._embedded['wp:featuredmedia'] ? post._embedded['wp:featuredmedia'][0].source_url : 'https://via.placeholder.com/800x400'}" alt="${post.title.rendered}">
+          <h3>${post.title.rendered}</h3>
+        </a>
+      `;
+      slidesContainer.appendChild(slide);
+    });
+  });
+
+let current = 0;
+document.getElementById("next").onclick = () => { move(1); };
+document.getElementById("prev").onclick = () => { move(-1); };
+
+function move(step) {
+  const slides = document.querySelectorAll(".slide");
+  current = (current + step + slides.length) % slides.length;
+  document.querySelector(".slides").style.transform = `translateX(-${current * 100}%)`;
+}
+</script>
+
+</body>
+</html>
